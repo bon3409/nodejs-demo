@@ -393,7 +393,7 @@ router.get(
   })
 );
 
-router.post("/register-password", function (req, res, next) {
+router.post("/register-password", async function (req, res, next) {
   var user = req.session.passport.user;
 
   if (!user) {
@@ -413,7 +413,9 @@ router.post("/register-password", function (req, res, next) {
     });
   }
 
-  userModel.setPassword(user.email, req.body.password);
+  await userModel.setPassword(user.email, req.body.password);
+  var user = await userModel.getUser(user.email);
+  req.session.passport.user = user;
 
   return res.redirect("/dashboard");
 });
@@ -447,7 +449,7 @@ router.get("/forget-password/reset", function (req, res) {
   res.render("./pages/forget-password-reset");
 });
 
-router.post("/forget-password/reset", function (req, res) {
+router.post("/forget-password/reset", async function (req, res) {
   var user = req.session.passport.user;
 
   if (!user) {
@@ -467,7 +469,9 @@ router.post("/forget-password/reset", function (req, res) {
     });
   }
 
-  userModel.setPassword(user.email, req.body.password);
+  await userModel.setPassword(user.email, req.body.password);
+  var user = await userModel.getUser(user.email);
+  req.session.passport.user = user;
 
   req.logout();
   res.locals.user = null;
@@ -499,7 +503,7 @@ router.post("/reset-password", function (req, res, next) {
     });
   }
 
-  userModel.setPassword(user.email, req.body.new_password);
+  var user = userModel.setPassword(user.email, req.body.new_password);
 
   return res.render("./pages/reset-password", {
     message: "Password reset success!",
