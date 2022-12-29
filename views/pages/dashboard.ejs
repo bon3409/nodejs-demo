@@ -1,0 +1,73 @@
+<h1>Dashboard</h1>
+
+<h4>User Statistics</h4>
+
+<div class="text-center" style="padding-bottom: 20px;">
+    <div class="row">
+        <% if (typeof statistics.login_times_total !== 'undefined') { %> 
+            <div class="col">
+                <div class="card" style="width: 20rem">
+                    <div class="card-body">
+                      <h6 class="card-title">Total number of users who have signed up</h6>
+                      <h1 class="card-text">
+                        <%- statistics.login_times_total %>
+                      </h1>
+                    </div>
+                  </div>
+            </div>
+        <% } %>
+        <% if (typeof statistics.active_total !== 'undefined') { %> 
+            <div class="col">
+                <div class="card" style="width: 20rem">
+                    <div class="card-body">
+                      <h6 class="card-title">Total number of users with active sessions today.</h6>
+                      <h1 class="card-text">
+                        <%- statistics.active_total %>
+                      </h1>
+                    </div>
+                  </div>
+            </div>
+        <% } %>
+        <% if ( typeof statistics.average !== 'undefined') { %> 
+            <div class="col">
+                <div class="card" style="width: 20rem">
+                    <div class="card-body">
+                      <h6 class="card-title">Average number of active session users in the last 7 days rolling.</h6>
+                      <h1 class="card-text">
+                        <%- statistics.average %>
+                      </h1>
+                    </div>
+                  </div>
+            </div>
+        <% } %>
+      </div>
+</div>
+
+<h4>Users list</h4>
+
+<% if (users.length > 0) {%>
+<table class="table">
+  <thead>
+    <tr>
+      <th scope="col">#</th>
+      <th scope="col">Username</th>
+      <th scope="col">Email</th>
+      <th scope="col">Login times</th>
+      <th scope="col">Last login</th>
+      <th scope="col">Sign up at</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% for (var i = 0; i < users.length; i++) { %>
+    <tr>
+      <th scope="row"><%- users[i].id %></th>
+      <td><%- users[i].username %></td>
+      <td><%- users[i].email %></td>
+      <td><%- users[i].login_times %></td>
+      <td><%- users[i].last_login_at %></td>
+      <td><%- users[i].sign_up_at %></td>
+    </tr>
+    <% } %>
+  </tbody>
+</table>
+<% } %>

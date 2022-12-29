@@ -1,0 +1,42 @@
+<h1>Profile</h1>
+
+<% if (typeof message !== "undefined") { %>
+  <div class="alert alert-success" role="alert">
+    <p><%= message %></p>
+  </div>
+<% } %>
+
+<div>
+  <form action="/profile" method="POST">
+    <input type="hidden" name="id" value="<%- id %>">
+    <div class="form-group">
+      <label for="username">Your name</label>
+      <input
+        type="text"
+        name="username"
+        id="username"
+        class="form-control"
+        placeholder="<%- username %>"
+      />
+    </div>
+    <% if (email) { %>
+    <div class="form-group">
+      <label for="username">Email</label>
+      <input
+        type="text"
+        name="email"
+        id="username"
+        class="form-control"
+        disabled
+        placeholder="<%- email %>"
+      />
+    </div>
+    <% } %>
+    <button type="submit" class="d-inline btn btn-success">Save</button>
+  </form>
+</div>
+
+<script>
+    username = '<%- username %>'
+    $('#username').val(username);
+</script>
