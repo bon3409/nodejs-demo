@@ -1,4 +1,4 @@
-# Aha demo
+# Node.js demo
 
 It's a node.js simple project for demo
 
