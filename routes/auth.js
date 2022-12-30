@@ -70,7 +70,7 @@ passport.use(
           return done(null);
         }
 
-        await userModel.activeLog(1);
+        await userModel.activeLog(userId);
         var user = await userModel.createFederate(userId, profile);
         done(null, user);
       } else {
@@ -100,7 +100,7 @@ passport.use(
           return done(null);
         }
 
-        await userModel.activeLog(1);
+        await userModel.activeLog(userId);
         var user = await userModel.createFederate(userId, profile);
         done(null, user);
       } else {
@@ -181,50 +181,17 @@ passport.use(
           '">Sign in</a></p>',
       });
     },
-    function verify(user) {
-      return new Promise(function (resolve, reject) {
-        db.get(
-          "SELECT * FROM users WHERE email = ?",
-          [user.email],
-          function (err, row) {
-            if (err) {
-              return reject(err);
-            }
-            if (!row) {
-              var now = new Date().getTime();
-              var dateTime = helper.coverTimeFormat(now);
-              db.run(
-                "INSERT INTO users (username, email, email_verified, status, login_times, sign_up_at, last_login_at, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                [
-                  user.username,
-                  user.email,
-                  1,
-                  1,
-                  1,
-                  dateTime,
-                  dateTime,
-                  dateTime,
-                  dateTime,
-                ],
-                function (err) {
-                  if (err) {
-                    return reject(err);
-                  }
-                  var id = this.lastID;
-                  var obj = {
-                    id: id,
-                    email: user.email,
-                    displayName: user.username,
-                  };
-                  return resolve(obj);
-                }
-              );
-            } else {
-              return resolve(row);
-            }
-          }
-        );
-      });
+    async function verify(user) {
+      var tempUser = await userModel.getUser(user.email);
+      if (!tempUser) {
+        var userId = await userModel.createUser(user.username, user.email);
+        user = await userModel.getUserById(userId);
+      } else {
+        user = tempUser;
+      }
+
+      await userModel.activeLog(user.id);
+      return user;
     }
   )
 );
