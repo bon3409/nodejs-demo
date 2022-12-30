@@ -7,8 +7,12 @@ var session = require("express-session");
 var authRouter = require("./routes/auth");
 var indexRouter = require("./routes/index");
 var expressLayouts = require("express-ejs-layouts");
+var swaggerUi = require('swagger-ui-express');
+var swaggerDocument = require('./swagger.json');
 
 var app = express();
+
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // 登入使用的 session
 app.use(
