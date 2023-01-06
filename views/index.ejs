@@ -1,4 +1,7 @@
-<h1>Welcome to <%- process.env.APP_NAME %></h1>
 <% if (!locals.user) { %>
+<h1>Welcome to <%- process.env.APP_NAME %></h1>
 <h3>Please login or sign up!</h3>
+<% } else {%>
+<h1>Hi <%= user.username %></h1>
+<h2>Welcome to <%- process.env.APP_NAME %></h2>
 <% } %>

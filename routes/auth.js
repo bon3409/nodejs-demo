@@ -6,6 +6,7 @@ var GoogleStrategy = require("passport-google-oauth2").Strategy;
 var FacebookStrategy = require("passport-facebook").Strategy;
 var MagicLinkStrategy = require("passport-magic-link").Strategy;
 var LocalStrategy = require("passport-local").Strategy;
+const { google } = require('googleapis');
 
 const bodyParser = require("body-parser");
 const nodemailer = require("nodemailer");
@@ -32,20 +33,32 @@ var helper = require("../helper/helper");
 var db = require("../db");
 var userModel = require("..//models/user");
 
-// gmail setting
-const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 465,
-  secure: true,
-  auth: {
-    type: "OAuth2",
-    user: process.env.MAIL_ACCOUNT,
-    clientId: process.env.MAIL_CLIENT_ID,
-    clientSecret: process.env.MAIL_CLIENT_SECRET,
-    refreshToken: process.env.MAIL_REFRESHTOKEN,
-    accessToken: process.env.MAIL_ACCESS_TOKEN,
-  },
-});
+const oAuth2Client = new google.auth.OAuth2(
+  process.env.MAIL_CLIENT_ID,
+  process.env.MAIL_CLIENT_SECRET,
+  process.env.MAIL_REDIRECT_URI
+);
+oAuth2Client.setCredentials({ refresh_token: process.env.MAIL_REFRESH_TOKEN });
+
+async function getTransporter() {
+  const accessToken = await oAuth2Client.getAccessToken();
+  let transporter = nodemailer.createTransport({
+    service: "gmail",
+    host: "smtp.gmail.com",
+    port: 465,
+    secure: true,
+    auth: {
+      type: "OAuth2",
+      user: process.env.MAIL_ACCOUNT,
+      clientId: process.env.MAIL_CLIENT_ID,
+      clientSecret: process.env.MAIL_CLIENT_SECRET,
+      refreshToken: process.env.MAIL_REFRESHTOKEN,
+      accessToken: accessToken.token,
+    },
+  });
+
+  return transporter;
+}
 
 passport.use(
   new GoogleStrategy(
@@ -161,8 +174,9 @@ passport.use(
       tokenField: "token",
       verifyUserAfterToken: true,
     },
-    function send(user, token) {
+    async function send(user, token) {
       var link = process.env.APP_URL + "/register/email/verify?token=" + token;
+      var transporter = await getTransporter();
 
       return transporter.sendMail({
         from: "demo@example.com",
@@ -205,8 +219,9 @@ passport.use(
       tokenField: "token",
       verifyUserAfterToken: true,
     },
-    function send(user, token) {
+    async function send(user, token) {
       var link = process.env.APP_URL + "/forget-password/verify?token=" + token;
+      var transporter = await getTransporter();
 
       return transporter.sendMail({
         from: "demo@example.com",

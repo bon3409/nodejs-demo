@@ -23,6 +23,7 @@
     "express-ejs-layouts": "^2.5.1",
     "express-session": "^1.17.1",
     "express-validator": "^6.14.2",
+    "googleapis": "^110.0.0",
     "mkdirp": "^1.0.4",
     "nodemailer": "^6.8.0",
     "passport": "^0.4.1",
