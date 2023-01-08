@@ -1,6 +1,6 @@
 module.exports = {
     coverTimeFormat: function(timestamp) {
-        dateFormat = new Date(parseInt(timestamp));
+        let dateFormat = new Date(parseInt(timestamp));
         return dateFormat.getFullYear()+
            "-"+String((dateFormat.getMonth()+1)).padStart(2, '0')+
            "-"+String(dateFormat.getDate()).padStart(2, '0')+

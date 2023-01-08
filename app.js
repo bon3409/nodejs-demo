@@ -1,16 +1,16 @@
 require("dotenv").config();
 
-var path = require("path");
-var express = require("express");
-var passport = require("passport");
-var session = require("express-session");
-var authRouter = require("./routes/auth");
-var indexRouter = require("./routes/index");
-var expressLayouts = require("express-ejs-layouts");
-var swaggerUi = require('swagger-ui-express');
-var swaggerDocument = require('./swagger.json');
+let path = require("path");
+let express = require("express");
+let passport = require("passport");
+let session = require("express-session");
+let authRouter = require("./routes/auth");
+let indexRouter = require("./routes/index");
+let expressLayouts = require("express-ejs-layouts");
+let swaggerUi = require('swagger-ui-express');
+let swaggerDocument = require('./swagger.json');
 
-var app = express();
+let app = express();
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 

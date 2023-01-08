@@ -1,6 +1,6 @@
-var db = require("../db");
-var helper = require("../helper/helper");
-var bcrypt = require("bcrypt");
+let db = require("../db");
+let helper = require("../helper/helper");
+let bcrypt = require("bcrypt");
 
 module.exports = {
   getUser: function (email) {
@@ -17,7 +17,7 @@ module.exports = {
   setPassword: function (email, password) {
     return new Promise((resolve, reject) => {
       db.serialize(() => {
-        var hashed_password = bcrypt.hashSync(password, 10);
+        let hashed_password = bcrypt.hashSync(password, 10);
         db.run(
           "UPDATE users SET hashed_password = ? WHERE email = ?",
           [hashed_password, email],
@@ -82,8 +82,8 @@ module.exports = {
 
   activeLog: function (userId) {
     return new Promise((resolve, reject) => {
-      var now = new Date().getTime();
-      var dateTime = helper.coverTimeFormat(now);
+      let now = new Date().getTime();
+      let dateTime = helper.coverTimeFormat(now);
       db.serialize(() => {
         db.run(
           "INSERT INTO active_logs (user_id, login_at) VALUES (?, ?)",
@@ -118,8 +118,8 @@ module.exports = {
 
   createSsoUser: function (username) {
     return new Promise((resolve, reject) => {
-      var now = new Date().getTime();
-      var dateTime = helper.coverTimeFormat(now);
+      let now = new Date().getTime();
+      let dateTime = helper.coverTimeFormat(now);
       db.serialize(() => {
         db.run(
           "INSERT INTO users (username, login_times, sign_up_at, last_login_at, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)",
@@ -145,7 +145,7 @@ module.exports = {
             if (err) {
               reject(err);
             }
-            var user = {
+            let user = {
               id: userId,
               username: profile.displayName,
             };
@@ -158,8 +158,8 @@ module.exports = {
   },
 
   createUser: function (username, email) {
-    var now = new Date().getTime();
-    var dateTime = helper.coverTimeFormat(now);
+    let now = new Date().getTime();
+    let dateTime = helper.coverTimeFormat(now);
     return new Promise((resolve, reject) => {
       db.serialize(() => {
         db.run(
@@ -178,8 +178,8 @@ module.exports = {
 
   updateLoginAt: function (userId) {
     return new Promise((resolve, reject) => {
-      var now = new Date().getTime();
-      var dateTime = helper.coverTimeFormat(now);
+      let now = new Date().getTime();
+      let dateTime = helper.coverTimeFormat(now);
       db.serialize(() => {
         db.run(
           "UPDATE users SET last_login_at = ?, updated_at = ?, login_times = login_times +1 WHERE id = ?",
@@ -213,7 +213,7 @@ module.exports = {
 
   getStatistics: function () {
     return new Promise((resolve, reject) => {
-      var sql =
+      let sql =
         "SELECT SUM(login_times) as 'login_times_total', (SELECT COUNT(*) FROM users WHERE last_login_at > date('now', 'start of day')) AS 'active_total', (SELECT COUNT(*) / 7 FROM active_logs WHERE login_at > date('now', '-7 days')) AS 'average' FROM users;";
       db.serialize(() => {
         db.get(sql, [], (err, row) => {

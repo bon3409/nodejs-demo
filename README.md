@@ -62,3 +62,5 @@ It's a node.js simple project for demo
 - [passport](https://github.com/passport)/**[todos-express-email](https://github.com/passport/todos-express-email)**
 
 - [全端勇士之路 Node.js-OAuth 2.0 & nodemailer & Gmail](https://israynotarray.com/nodejs/20191228/1009061739/)
+
+- [Setting up SonarQube on Your Local Machine for NodeJS Projects](https://medium.com/bb-tutorials-and-thoughts/setting-up-sonarqube-on-your-local-machine-for-nodejs-projects-85e101675f7b)

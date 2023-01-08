@@ -1,19 +1,19 @@
-var express = require("express");
-var passport = require("passport");
-var bcrypt = require("bcrypt");
-var passwordValidator = require("password-validator");
-var GoogleStrategy = require("passport-google-oauth2").Strategy;
-var FacebookStrategy = require("passport-facebook").Strategy;
-var MagicLinkStrategy = require("passport-magic-link").Strategy;
-var LocalStrategy = require("passport-local").Strategy;
+let express = require("express");
+let passport = require("passport");
+let bcrypt = require("bcrypt");
+let passwordValidator = require("password-validator");
+let GoogleStrategy = require("passport-google-oauth2").Strategy;
+let FacebookStrategy = require("passport-facebook").Strategy;
+let MagicLinkStrategy = require("passport-magic-link").Strategy;
+let LocalStrategy = require("passport-local").Strategy;
 const { google } = require('googleapis');
 
 const bodyParser = require("body-parser");
 const nodemailer = require("nodemailer");
-var app = express();
+let app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
-var schema = new passwordValidator();
+let schema = new passwordValidator();
 schema
   .is()
   .min(8, "Password contains at least 8 characters.") // Minimum length 8
@@ -29,9 +29,9 @@ schema
   .has()
   .symbols(1, "Password contains at least one special character."); // special characters
 
-var helper = require("../helper/helper");
-var db = require("../db");
-var userModel = require("..//models/user");
+let helper = require("../helper/helper");
+let db = require("../db");
+let userModel = require("..//models/user");
 
 const oAuth2Client = new google.auth.OAuth2(
   process.env.MAIL_CLIENT_ID,
@@ -69,12 +69,13 @@ passport.use(
       scope: ["profile"],
     },
     async function verify(request, accessToken, refreshToken, profile, done) {
-      var now = new Date().getTime();
-      var dateTime = helper.coverTimeFormat(now);
-      var federateRecord = await userModel.findFederated(profile);
+      let now = new Date().getTime();
+      let dateTime = helper.coverTimeFormat(now);
+      let federateRecord = await userModel.findFederated(profile);
+      let user = null;
 
       if (!federateRecord) {
-        var userId = await userModel.createSsoUser(
+        let userId = await userModel.createSsoUser(
           profile.displayName,
           dateTime
         );
@@ -84,12 +85,12 @@ passport.use(
         }
 
         await userModel.activeLog(userId);
-        var user = await userModel.createFederate(userId, profile);
+        user = await userModel.createFederate(userId, profile);
         done(null, user);
       } else {
         await userModel.updateLoginAt(federateRecord.user_id);
         await userModel.activeLog(federateRecord.user_id);
-        var user = await userModel.getUserById(federateRecord.user_id);
+        user = await userModel.getUserById(federateRecord.user_id);
         done(null, user);
       }
     }
@@ -104,22 +105,23 @@ passport.use(
       callbackURL: process.env.FACEBOOK_CALLBACK_URL,
     },
     async function verify(request, accessToken, refreshToken, profile, done) {
-      var federateRecord = await userModel.findFederated(profile);
+      let federateRecord = await userModel.findFederated(profile);
+      let user = null;
 
       if (!federateRecord) {
-        var userId = await userModel.createSsoUser(profile.displayName);
+        let userId = await userModel.createSsoUser(profile.displayName);
 
         if (!userId) {
           return done(null);
         }
 
         await userModel.activeLog(userId);
-        var user = await userModel.createFederate(userId, profile);
+        user = await userModel.createFederate(userId, profile);
         done(null, user);
       } else {
         await userModel.updateLoginAt(federateRecord.user_id);
         await userModel.activeLog(federateRecord.user_id);
-        var user = await userModel.getUserById(federateRecord.user_id);
+        user = await userModel.getUserById(federateRecord.user_id);
         done(null, user);
       }
     }
@@ -132,15 +134,15 @@ passport.use(
       usernameField: "email",
     },
     async function verify(username, password, done) {
-      user = await userModel.getUser(username);
+      let user = await userModel.getUser(username);
 
       if (!user) {
         return done(null, false, { message: "Account not exists!" });
       }
 
       try {
-        if (await bcrypt.compare(password, user.hashed_password)) {
-          var err = await userModel.updateLoginAt(user.id);
+        if (bcrypt.compareSync(password, user.hashed_password)) {
+          let err = await userModel.updateLoginAt(user.id);
 
           if (err) {
             return done(err);
@@ -148,13 +150,7 @@ passport.use(
 
           await userModel.activeLog(user.id);
 
-          var user = await userModel.getUserById(user.id);
-
-          if (!user) {
-            return done(null, false);
-          } else {
-            return done(null, user);
-          }
+          return done(null, user);
         } else {
           return done(null, false, { message: "password incorrect" });
         }
@@ -175,8 +171,8 @@ passport.use(
       verifyUserAfterToken: true,
     },
     async function send(user, token) {
-      var link = process.env.APP_URL + "/register/email/verify?token=" + token;
-      var transporter = await getTransporter();
+      let link = process.env.APP_URL + "/register/email/verify?token=" + token;
+      let transporter = await getTransporter();
 
       return transporter.sendMail({
         from: "demo@example.com",
@@ -196,9 +192,9 @@ passport.use(
       });
     },
     async function verify(user) {
-      var tempUser = await userModel.getUser(user.email);
+      let tempUser = await userModel.getUser(user.email);
       if (!tempUser) {
-        var userId = await userModel.createUser(user.username, user.email);
+        let userId = await userModel.createUser(user.username, user.email);
         user = await userModel.getUserById(userId);
       } else {
         user = tempUser;
@@ -220,8 +216,8 @@ passport.use(
       verifyUserAfterToken: true,
     },
     async function send(user, token) {
-      var link = process.env.APP_URL + "/forget-password/verify?token=" + token;
-      var transporter = await getTransporter();
+      let link = process.env.APP_URL + "/forget-password/verify?token=" + token;
+      let transporter = await getTransporter();
 
       return transporter.sendMail({
         from: "demo@example.com",
@@ -269,7 +265,7 @@ passport.deserializeUser(function (user, done) {
   done(null, user);
 });
 
-var router = express.Router();
+let router = express.Router();
 
 // middleware: check user is login or not
 function isLoggedIn(req, res, next) {
@@ -309,9 +305,9 @@ router.get(
 
 // only login success will into this route
 router.get("/dashboard", isLoggedIn, async (req, res) => {
-  var username = req.user.username ?? req.user.displayName;
-  var users = await userModel.getUsers();
-  var statistics = await userModel.getStatistics();
+  let username = req.user.username ?? req.user.displayName;
+  let users = await userModel.getUsers();
+  let statistics = await userModel.getStatistics();
   res.render("./pages/dashboard", {
     username: username,
     users: users,
@@ -321,8 +317,8 @@ router.get("/dashboard", isLoggedIn, async (req, res) => {
 
 // profile page
 router.get("/profile", isLoggedIn, (req, res) => {
-  var username = req.user.username ?? req.user.displayName;
-  var email = req.user.email;
+  let username = req.user.username ?? req.user.displayName;
+  let email = req.user.email;
   res.render("./pages/profile", {
     id: req.user.id,
     username: username,
@@ -359,6 +355,7 @@ router.post(
     failureRedirect: "/register",
   }),
   function (req, res, next) {
+    req.session.regenerate(function(err) {});
     res.redirect("/register/email/check");
   }
 );
@@ -376,13 +373,13 @@ router.get(
 );
 
 router.post("/register-password", async function (req, res, next) {
-  var user = req.session.passport.user;
+  let user = req.session.passport.user;
 
   if (!user) {
     return res.redirect("/register");
   }
 
-  var validator = schema.validate(req.body.password, { details: true });
+  let validator = schema.validate(req.body.password, { details: true });
   if (validator.length > 0) {
     return res.render("./pages/register-password", {
       message: validator[0]["message"],
@@ -396,7 +393,7 @@ router.post("/register-password", async function (req, res, next) {
   }
 
   await userModel.setPassword(user.email, req.body.password);
-  var user = await userModel.getUser(user.email);
+  user = await userModel.getUser(user.email);
   req.session.passport.user = user;
 
   return res.redirect("/dashboard");
@@ -410,6 +407,7 @@ router.post(
     failureRedirect: "/error",
   }),
   function (req, res, next) {
+    req.session.regenerate(function(err) {});
     res.redirect("/forget-password/email/check");
   }
 );
@@ -432,13 +430,13 @@ router.get("/forget-password/reset", function (req, res) {
 });
 
 router.post("/forget-password/reset", async function (req, res) {
-  var user = req.session.passport.user;
+  let user = req.session.passport.user;
 
   if (!user) {
     return res.redirect("/register");
   }
 
-  var validator = schema.validate(req.body.password, { details: true });
+  let validator = schema.validate(req.body.password, { details: true });
   if (validator.length > 0) {
     return res.render("./pages/register-password", {
       message: validator[0]["message"],
@@ -452,7 +450,7 @@ router.post("/forget-password/reset", async function (req, res) {
   }
 
   await userModel.setPassword(user.email, req.body.password);
-  var user = await userModel.getUser(user.email);
+  user = await userModel.getUser(user.email);
   req.session.passport.user = user;
 
   req.logout();
@@ -462,7 +460,7 @@ router.post("/forget-password/reset", async function (req, res) {
 
 // reset password
 router.post("/reset-password", function (req, res, next) {
-  var user = req.session.passport.user;
+  let user = req.session.passport.user;
 
   // verify old password
   if (!bcrypt.compareSync(req.body.old_password, user.hashed_password)) {
@@ -471,7 +469,7 @@ router.post("/reset-password", function (req, res, next) {
     });
   }
 
-  var validator = schema.validate(req.body.new_password, { details: true });
+  let validator = schema.validate(req.body.new_password, { details: true });
   if (validator.length > 0) {
     return res.render("./pages/reset-password", {
       errorMessage: validator[0]["message"],
@@ -485,7 +483,7 @@ router.post("/reset-password", function (req, res, next) {
     });
   }
 
-  var user = userModel.setPassword(user.email, req.body.new_password);
+  userModel.setPassword(user.email, req.body.new_password);
 
   return res.render("./pages/reset-password", {
     message: "Password reset success!",
@@ -495,8 +493,8 @@ router.post("/reset-password", function (req, res, next) {
 router.post("/profile", function (req, res) {
   userModel.updateUserName(req.body.id, req.body.username);
   req.session.passport.user.username = req.body.username;
-  var id = req.session.passport.user.id;
-  var email = req.session.passport.user.email;
+  let id = req.session.passport.user.id;
+  let email = req.session.passport.user.email;
   res.render("./pages/profile", {
     id: id,
     username: req.body.username,

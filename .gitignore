@@ -2,3 +2,5 @@
 var
 node_modules
 .env
+sonar-project.properties
+.scannerwork

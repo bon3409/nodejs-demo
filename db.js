@@ -1,9 +1,9 @@
-var sqlite3 = require('sqlite3');
-var mkdirp = require('mkdirp');
+let sqlite3 = require('sqlite3');
+let mkdirp = require('mkdirp');
 
 mkdirp.sync('var/db');
 
-var db = new sqlite3.Database('./var/db/demo.db');
+let db = new sqlite3.Database('./var/db/demo.db');
 
 db.serialize(function() {
   db.run("CREATE TABLE IF NOT EXISTS users ( \
