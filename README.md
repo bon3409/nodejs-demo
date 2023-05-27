@@ -2,10 +2,6 @@
 
 It's a node.js simple project for demo
 
-## Link
-
-- [Demo](https://bonlee29.com)
-- [API Document](https://bonlee29.com/api-docs)
 
 ## Installation
 
